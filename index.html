@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Typing Test</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1>Typing test</h1>
+    <div class="top-right">
+      <div class="seg" id="durations" role="group" aria-label="Test duration">
+        <button data-t="15">15s</button><button data-t="30">30s</button><button data-t="60" class="on">60s</button><button data-t="120">120s</button>
+      </div>
+      <button class="icon-btn" id="theme" aria-label="Switch theme" title="Switch theme">◐</button>
+    </div>
+  </header>
+
+  <input type="text" class="input-field" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Typing input">
+
+  <div class="content-box">
+    <div class="content">
+      <ul class="result-details">
+        <li class="time"><p>Time left</p><span><b>60</b>s</span></li>
+        <li class="mistake"><p>Mistakes</p><span>0</span></li>
+        <li class="wpm"><p>WPM</p><span>0</span></li>
+        <li class="cpm"><p>CPM</p><span>0</span></li>
+        <li class="acc"><p>Accuracy</p><span>100%</span></li>
+      </ul>
+      <div class="bar"><i></i></div>
+    </div>
+    <div class="typing-text idle" tabindex="0" aria-label="Text to type"></div>
+    <div class="foot">
+      <span>Start typing to begin. <kbd>Tab</kbd> restarts.</span>
+      <span>Best: <b id="best">–</b> WPM</span>
+      <button class="primary">Try again</button>
+    </div>
+
+    <div class="overlay" id="result" role="dialog" aria-label="Result">
+      <h2>Time’s up. Your speed:</h2>
+      <div class="big"><span id="rWpm">0</span><small>WPM</small></div>
+      <span class="badge" id="badge">New best</span>
+      <div class="stats">
+        <div><p>Accuracy</p><b id="rAcc">0%</b></div>
+        <div><p>Characters</p><b id="rCpm">0</b></div>
+        <div><p>Mistakes</p><b id="rMis">0</b></div>
+        <div><p>Best</p><b id="rBest">0</b></div>
+      </div>
+      <button class="primary" id="again">Try again</button>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
