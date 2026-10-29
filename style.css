@@ -274,10 +274,13 @@ kbd {
 
 /* Hidden input that captures the keystrokes */
 .input-field {
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   opacity: 0;
+  font-size: 16px;
   pointer-events: none;
 }
 

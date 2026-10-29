@@ -38,11 +38,12 @@ let startedAt = 0;
 let finished = false;
 let isTyping = false;
 
-let charIndex = 0;    // position in the current paragraph
+let charIndex = 0;    // how many letters typed in the current paragraph
 let wrongNow = 0;     // wrong letters in the current paragraph
 let doneCorrect = 0;  // correct letters from paragraphs already completed
 let mistake = 0;      // total mistakes in the whole test
-let keystrokes = 0;   // total keys pressed in the whole test
+let keystrokes = 0;   // total letters typed in the whole test
+let base = 0;         // how much of input.value belongs to finished paragraphs
 let chars = [];
 
 function getBest() {
@@ -64,32 +65,40 @@ function loadParagraph() {
   typingText.scrollTop = 0;
 }
 
-function typeChar(ch) {
-  const el = chars[charIndex];
-  el.classList.remove('active');
-  keystrokes++;
-  if (el.textContent === ch) {
-    el.classList.add('correct');
-  } else {
-    el.classList.add('incorrect');
-    mistake++;
-    wrongNow++;
+// Repaints every letter from the typed text.
+// Works even if the phone keyboard autocorrects an earlier word.
+function sync(v) {
+  wrongNow = 0;
+  for (let i = 0; i < chars.length; i++) {
+    const el = chars[i];
+    el.classList.remove('correct', 'incorrect', 'active');
+    if (i < v.length) {
+      if (v[i] === el.textContent) {
+        el.classList.add('correct');
+      } else {
+        el.classList.add('incorrect');
+        wrongNow++;
+      }
+    }
   }
-  charIndex++;
+  charIndex = v.length;
+  if (charIndex < chars.length) chars[charIndex].classList.add('active');
 }
 
-function backChar() {
-  chars[charIndex].classList.remove('active');
-  charIndex--;
-  const el = chars[charIndex];
-  if (el.classList.contains('incorrect')) wrongNow--;
-  el.classList.remove('correct', 'incorrect');
+// Counts mistakes and keystrokes only for newly typed letters
+function countNew(v) {
+  for (let i = charIndex; i < v.length && i < chars.length; i++) {
+    keystrokes++;
+    if (v[i] !== chars[i].textContent) mistake++;
+  }
 }
 
 function onInput() {
-  if (finished) { input.value = ''; return; }
+  if (finished) { input.value = ''; base = 0; return; }
 
-  let v = input.value.slice(0, chars.length);
+  // If the user deleted back into an old paragraph, stop at its start
+  if (input.value.length < base) base = input.value.length;
+  let v = input.value.slice(base);
 
   if (!isTyping && v.length) {
     isTyping = true;
@@ -98,21 +107,24 @@ function onInput() {
     timer = setInterval(tick, 200);
   }
 
-  while (charIndex > v.length) backChar();
-  while (charIndex < v.length) typeChar(v[charIndex]);
-  input.value = v;
+  countNew(v);
 
   // Paragraph complete: remove it and show the next one in its place
-  if (charIndex === chars.length) {
-    doneCorrect += charIndex - wrongNow;
+  while (v.length >= chars.length) {
+    const len = chars.length;
+    sync(v.slice(0, len));
+    doneCorrect += len - wrongNow;
+    base += len;
+    v = v.slice(len);
+    loadParagraph();
     charIndex = 0;
     wrongNow = 0;
-    input.value = '';
-    loadParagraph();
+    countNew(v);
   }
 
+  sync(v);
+
   // Keep the current line in view
-  chars[charIndex].classList.add('active');
   const lh = parseFloat(getComputedStyle(typingText).lineHeight);
   const line = Math.round((chars[charIndex].offsetTop - chars[0].offsetTop) / lh);
   typingText.scrollTop = Math.max(0, (line - 1) * lh);
@@ -175,6 +187,7 @@ function reset() {
   doneCorrect = 0;
   mistake = 0;
   keystrokes = 0;
+  base = 0;
   input.value = '';
 
   time.textContent = maxTime;
